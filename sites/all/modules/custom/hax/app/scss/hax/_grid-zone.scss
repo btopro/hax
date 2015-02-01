@@ -1,0 +1,16 @@
+.grid-zone {
+  border: 5px dashed gray;
+  padding: 5em;
+  text-align: center;
+}
+
+.grid-zone__trigger {
+  display: block;
+}
+
+.grid-plate.is-editable {
+  .columns {
+    min-height: 10em;
+    border: 3px dashed gray;
+  }
+}

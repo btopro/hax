@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="add-row" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 60 60" style="enable-background:new 0 0 60 60;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;}
+	.st2{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2.2495,2.2495;}
+</style>
+<path id="rectangle" class="st0" d="M51.5,39.5H20.7c-1.9,0-3.5-1.6-3.5-3.5V25.2c0-1.9,1.6-3.5,3.5-3.5h30.8c1.9,0,3.5,1.6,3.5,3.5
+	V36C55,37.9,53.4,39.5,51.5,39.5z"/>
+<line id="plus-hor" class="st0" x1="10.9" y1="31.2" x2="5.4" y2="31.2"/>
+<line id="plus-vert" class="st0" x1="8.2" y1="28.4" x2="8.2" y2="34"/>
+<g id="dotted-line-right">
+	<g>
+		<line class="st1" x1="42.8" y1="21.7" x2="42.8" y2="22.7"/>
+		<line class="st2" x1="42.8" y1="25" x2="42.8" y2="37.4"/>
+		<line class="st1" x1="42.8" y1="38.5" x2="42.8" y2="39.5"/>
+	</g>
+</g>
+<g id="dotted-line-left">
+	<g>
+		<line class="st1" x1="29" y1="21.7" x2="29" y2="22.7"/>
+		<line class="st2" x1="29" y1="25" x2="29" y2="37.4"/>
+		<line class="st1" x1="29" y1="38.5" x2="29" y2="39.5"/>
+	</g>
+</g>
+</svg>
