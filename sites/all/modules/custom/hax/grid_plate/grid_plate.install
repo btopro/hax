@@ -62,7 +62,7 @@ function grid_plate_schema() {
       ),
       'collapse' => array(
         'description' => 'Diasbles padding by adding collapse class to row',
-        'type' => 'boolean',
+        'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
       ),
