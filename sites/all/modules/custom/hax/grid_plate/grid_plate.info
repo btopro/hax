@@ -1,0 +1,11 @@
+name = Grid Plate
+description = Implementation of entity Grid Plate
+core = 7.x
+
+dependencies[] = entity
+
+files[] = includes/grid_plate.class.inc
+files[] = includes/grid_plate.controller.inc
+files[] = includes/grid_plate.type.controller.inc
+files[] = includes/grid_plate.admin.inc
+files[] = includes/grid_plate_type.admin.inc

@@ -1,0 +1,314 @@
+<?php
+
+/**
+ * @file
+ * Implementation of Entity Grid Plate.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function grid_plate_entity_info() {
+  $return['grid_plate'] = array(
+    'label' => t('Grid Plate'),
+    // The entity class and controller class extend the default entity classes.
+    'entity class' => 'GridPlate',
+    'controller class' => 'GridPlateController',
+    'base table' => 'grid_plate',
+    'fieldable' => TRUE,
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'grid_plate_id',
+      'bundle' => 'type',
+    ),
+    // Bundles are defined by the types below.
+    'bundles' => array(),
+    'bundle keys' => array('bundle' => 'type'),
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
+    'access callback' => 'grid_plate_access',
+    'module' => 'grid_plate',
+    // The information below is used by the Controller;
+    // which extends the EntityDefaultUIController.
+    'admin ui' => array(
+      'path' => 'admin/content/grid_plate',
+      'file' => 'includes/grid_plate.admin.inc',
+      'controller class' => 'GridPlateUIController',
+      'menu wildcard' => '%grid_plate',
+    ),
+  );
+  // The entity that holds information about the entity types.
+  $return['grid_plate_type'] = array(
+    'label' => t('Grid Plate Type'),
+    'entity class' => 'GridPlateType',
+    'controller class' => 'GridPlateTypeController',
+    'base table' => 'grid_plate_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'grid_plate',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'access callback' => 'grid_plate_type_access',
+    'module' => 'grid_plate',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/grid_plate_types',
+      'file' => 'includes/grid_plate_type.admin.inc',
+      'controller class' => 'GridPlateTypeUIController',
+    ),
+  );
+
+  return $return;
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function grid_plate_entity_info_alter(&$entity_info) {
+  foreach (grid_plate_get_types() as $type => $info) {
+    $entity_info['grid_plate']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/grid_plate_types/manage/%grid_plate_type',
+        'real path' => 'admin/structure/grid_plate_types/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer Grid Plate types'),
+      ),
+    );
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function grid_plate_permission() {
+  // We set up permisssions to manage entity types, manage all entities and the
+  // permissions for each individual entity.
+  $permissions = array(
+    'administer Grid Plate types' => array(
+      'title' => t('Administer Grid Plate types'),
+      'description' => t('Create and delete fields for Grid Plate types, and set their permissions.'),
+    ),
+    'administer Grid Plate' => array(
+      'title' => t('Administer Grid Plate'),
+      'description' => t('Edit and delete all Grid Plate'),
+    ),
+  );
+
+  // Generate permissions.
+  foreach (grid_plate_get_types() as $type) {
+    $type_name = check_plain($type->type);
+    $permissions += array(
+      "edit any $type_name Grid Plate" => array(
+        'title' => t('%type_name: Edit any Grid Plate', array('%type_name' => $type->label)),
+      ),
+      "view any $type_name Grid Plate" => array(
+        'title' => t('%type_name: View any Grid Plate', array('%type_name' => $type->label)),
+      ),
+    );
+  }
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function grid_plate_theme() {
+  return array(
+    'grid_plate' => array(
+      'render element' => 'elements',
+      'template' => 'grid_plate',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function grid_plate_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link 'admin/structure/grid_plate/add'
+  // on 'admin/structure/grid_plate'.
+  if ($root_path == 'admin/content/grid_plate') {
+    $item = menu_get_item('admin/content/grid_plate/add');
+    if ($item['access']) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
+  }
+}
+
+/**
+ * Determines whether the given user has access to a Grid Plate.
+ *
+ * @param string $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ *
+ * @param object $entity
+ *   Optionally a Grid Plate or a Grid Plate type to check access for.
+ *   If nothing is given, access for all Grid Plate is determined.
+ *
+ * @param object $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ *
+ * @return bool
+ *   Whether access is allowed or not.
+ */
+function grid_plate_access($op, $entity = NULL, $account = NULL) {
+  if (user_access('administer Grid Plate', $account)) {
+    return TRUE;
+  }
+
+  if (isset($entity) && $type_name = $entity->type) {
+    $op = ($op == 'view') ? 'view' : 'edit';
+    if (user_access("$op any $type_name Grid Plate", $account)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Access callback for the entity API.
+ */
+function grid_plate_type_access($op, $type = NULL, $account = NULL) {
+  return user_access('administer Grid Plate types', $account);
+}
+
+/**
+ * Gets an array of all Grid Plate types, keyed by the type name.
+ *
+ * @param string $type_name
+ *   If set, the type with the given name is returned.
+ *
+ * @return array
+ *   Depending whether $type isset, an array of Grid Plate types
+ *   or a single one.
+ */
+function grid_plate_get_types($type_name = NULL) {
+  // entity_load will get the Entity controller for our Grid Plate entity
+  // and call the load function of that object.
+  // We are loading entities by name here.
+  $types = entity_load_multiple_by_name('grid_plate_type', isset($type_name) ? array($type_name) : FALSE);
+
+  return isset($type_name) ? reset($types) : $types;
+}
+
+/**
+ * Menu argument loader; Load a Grid Plate type by string.
+ *
+ * @param string $type
+ *   The machine-readable name of a Grid Plate type to load.
+ *
+ * @return mixed
+ *   A Grid Plate type array or FALSE if $type does not exist.
+ */
+function grid_plate_type_load($type) {
+  return grid_plate_get_types($type);
+}
+
+/**
+ * Fetch a Grid Plate object.
+ *
+ * @param int $grid_plate_id
+ *   Integer specifying the grid_plate id.
+ *
+ * @return object
+ *   A fully-loaded object or FALSE if it cannot be loaded.
+ *
+ * @see entity_load_single()
+ */
+function grid_plate_load($grid_plate_id) {
+  return entity_load_single('grid_plate', $grid_plate_id);
+}
+
+/**
+ * Load multiple Grid Plate based on certain conditions.
+ *
+ * @param array $grid_plate_ids
+ *   An array of Grid Plate IDs.
+ *
+ * @param array $conditions
+ *   An array of conditions to match against the grid_plate table.
+ *
+ * @param bool $reset
+ *   A boolean indicating that the internal cache should be reset.
+ *
+ * @return array
+ *   An array of objects, indexed by grid_plate_id.
+ *
+ * @see entity_load()
+ * @see grid_plate_load()
+ */
+function grid_plate_load_multiple($grid_plate_ids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('grid_plate', $grid_plate_ids, $conditions, $reset);
+}
+
+/**
+ * Deletes a Grid Plate.
+ */
+function grid_plate_delete(GridPlate $grid_plate) {
+  $grid_plate->delete();
+}
+
+/**
+ * Delete multiple Grid Plate.
+ *
+ * @param array $grid_plate_ids
+ *   An array of Grid Plate IDs.
+ */
+function grid_plate_delete_multiple(array $grid_plate_ids) {
+  return entity_delete_multiple('grid_plate', $grid_plate_ids);
+}
+
+/**
+ * Create a Grid Plate object.
+ */
+function grid_plate_create($values = array()) {
+  return entity_create('grid_plate', $values);
+}
+
+/**
+ * Saves a Grid Plate to the database.
+ *
+ * @param string $grid_plate
+ *   The Grid Plate object.
+ */
+function grid_plate_save($grid_plate) {
+  return entity_save('grid_plate', $grid_plate);
+}
+
+/**
+ * Saves a Grid Plate type to the db.
+ */
+function grid_plate_type_save($type) {
+  return entity_save('grid_plate_type', $type);
+}
+
+/**
+ * Deletes a Grid Plate type from the db.
+ */
+function grid_plate_type_delete(GridPlateType $type) {
+  $type->delete();
+}
+
+/**
+ * Menu title callback for showing individual entities.
+ */
+function grid_plate_page_title(GridPlate $grid_plate) {
+  return $grid_plate->label;
+}
+
+/**
+ * Sets up content to show an individual Grid Plate.
+ */
+function grid_plate_page_view($grid_plate, $view_mode = 'full') {
+  return entity_view('grid_plate_type', array($grid_plate), $view_mode);
+}
