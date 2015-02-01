@@ -46,6 +46,26 @@ function grid_plate_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'columns' => array(
+        'description' => 'A list of class names associated with the grid_plate',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'snap_points' => array(
+        'description' => 'Determine snap points the user can set',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'collapse' => array(
+        'description' => 'Diasbles padding by adding collapse class to row',
+        'type' => 'boolean',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ) + entity_exportable_schema_fields(),
     'primary key' => array('grid_plate_id'),
     'indexes' => array(
