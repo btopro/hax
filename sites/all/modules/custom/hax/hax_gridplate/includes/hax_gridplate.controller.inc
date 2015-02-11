@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Grid Plate controller class.
+ * Hax Gridplate controller class.
  */
 
 /**
- * The Controller for Grid Plate entities.
+ * The Controller for Hax Gridplate entities.
  */
-class GridPlateController extends EntityAPIController {
+class HaxGridplateController extends EntityAPIController {
   /**
-   * Create a Grid Plate.
+   * Create a Hax Gridplate.
    *
    * @param array $values
    *   An array containing the possible values.
@@ -21,7 +21,7 @@ class GridPlateController extends EntityAPIController {
   public function create(array $values = array()) {
     // Add values that are specific to our entity.
     $values += array(
-      'grid_plate_id' => '',
+      'hax_gridplate_id' => '',
       'is_new' => TRUE,
       'label' => '',
     );

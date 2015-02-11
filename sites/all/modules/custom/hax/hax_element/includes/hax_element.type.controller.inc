@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Element controller class.
+ * Hax Element controller class.
  */
 
 /**
- * The Controller for Element entities.
+ * The Controller for Hax Element entities.
  */
-class ElementTypeController extends EntityAPIControllerExportable {
+class HaxElementTypeController extends EntityAPIControllerExportable {
   /**
-   * Create a Element type.
+   * Create a Hax Element type.
    *
    * @param array $values
    *   An array containing the possible values.
@@ -19,7 +19,7 @@ class ElementTypeController extends EntityAPIControllerExportable {
    *   A type object with all default fields initialized.
    */
   public function create(array $values = array()) {
-    // Add values that are specific to our Element.
+    // Add values that are specific to our Hax Element.
     $values += array(
       'id' => '',
     );

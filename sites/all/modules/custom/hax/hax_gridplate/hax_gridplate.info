@@ -1,0 +1,11 @@
+name = Hax Gridplate
+description = Implementation of entity Hax Gridplate
+core = 7.x
+
+dependencies[] = entity
+
+files[] = includes/hax_gridplate.class.inc
+files[] = includes/hax_gridplate.controller.inc
+files[] = includes/hax_gridplate.type.controller.inc
+files[] = includes/hax_gridplate.admin.inc
+files[] = includes/hax_gridplate_type.admin.inc

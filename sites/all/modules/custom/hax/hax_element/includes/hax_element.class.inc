@@ -2,18 +2,18 @@
 
 /**
  * @file
- * Grid Plate class.
+ * Hax Element class.
  */
 
 /**
- * The class used for grid_plate entities.
+ * The class used for hax_element entities.
  */
-class GridPlate extends Entity {
+class HaxElement extends Entity {
   /**
    * Class constructor.
    */
   public function __construct($values = array()) {
-    parent::__construct($values, 'grid_plate');
+    parent::__construct($values, 'hax_element');
   }
 
   /**
@@ -27,14 +27,14 @@ class GridPlate extends Entity {
    * Defines the default entity URI.
    */
   protected function defaultUri() {
-    return array('path' => 'grid_plate/' . $this->grid_plate_id);
+    return array('path' => 'hax_element/' . $this->hax_element_id);
   }
 }
 
 /**
- * The class used for Grid Plate type entities.
+ * The class used for Hax Element type entities.
  */
-class GridPlateType extends Entity {
+class HaxElementType extends Entity {
   public $type;
   public $label;
 
@@ -42,6 +42,6 @@ class GridPlateType extends Entity {
    * Class constructor.
    */
   public function __construct($values = array()) {
-    parent::__construct($values, 'grid_plate_type');
+    parent::__construct($values, 'hax_element_type');
   }
 }

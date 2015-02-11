@@ -2,13 +2,13 @@
 
 /**
  * @file
- * grid_plate editing UI.
+ * hax_element editing UI.
  */
 
 /**
  * UI controller.
  */
-class GridPlateUIController extends EntityDefaultUIController {
+class HaxElementUIController extends EntityDefaultUIController {
   /**
    * Overrides hook_menu() defaults.
    *
@@ -24,11 +24,11 @@ class GridPlateUIController extends EntityDefaultUIController {
 
     $items = parent::hook_menu();
 
-    // Change the overview menu type for the list of Grid Plate.
+    // Change the overview menu type for the list of Hax Element.
     $items[$this->path]['type'] = MENU_LOCAL_TASK;
 
     // Replaces default entity title.
-    $items[$this->path]['title'] = 'Grid Plate';
+    $items[$this->path]['title'] = 'Hax Element';
 
     // Extend the 'add' path.
     $items[$this->path . '/add'] = array(
@@ -49,10 +49,10 @@ class GridPlateUIController extends EntityDefaultUIController {
       'access arguments' => array('create', $this->entityType),
     );
 
-    $items['grid_plate/' . $wildcard] = array(
-      'title callback' => 'grid_plate_page_title',
+    $items['hax_element/' . $wildcard] = array(
+      'title callback' => 'hax_element_page_title',
       'title arguments' => array(1),
-      'page callback' => 'grid_plate_page_view',
+      'page callback' => 'hax_element_page_view',
       'page arguments' => array(1),
       'access callback' => 'entity_access',
       'access arguments' => array('view', $this->entityType),
@@ -63,25 +63,25 @@ class GridPlateUIController extends EntityDefaultUIController {
 }
 
 /**
- * Form callback: create or edit a Grid Plate.
+ * Form callback: create or edit a Hax Element.
  */
-function grid_plate_form($form, &$form_state, $grid_plate, $op = 'edit', $entity_type) {
+function hax_element_form($form, &$form_state, $hax_element, $op = 'edit', $entity_type) {
   // Add the breadcrumb for the form's location.
-  grid_plate_set_breadcrumb();
+  hax_element_set_breadcrumb();
 
   // Add the default field elements.
   $form['label'] = array(
     '#type' => 'textfield',
-    '#title' => t('Grid Plate Label'),
-    '#default_value' => isset($grid_plate->label) ? $grid_plate->label : '',
+    '#title' => t('Hax Element Label'),
+    '#default_value' => isset($hax_element->label) ? $hax_element->label : '',
     '#maxlength' => 255,
     '#required' => TRUE,
     '#weight' => -5,
   );
 
   // Add the field related form elements.
-  $form_state['grid_plate'] = $grid_plate;
-  field_attach_form('grid_plate', $grid_plate, $form, $form_state);
+  $form_state['hax_element'] = $hax_element;
+  field_attach_form('hax_element', $hax_element, $form, $form_state);
 
   $form['actions'] = array(
     '#type' => 'container',
@@ -99,82 +99,82 @@ function grid_plate_form($form, &$form_state, $grid_plate, $op = 'edit', $entity
 
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save Grid Plate'),
-    '#submit' => $submit + array('grid_plate_edit_form_submit'),
+    '#value' => t('Save Hax Element'),
+    '#submit' => $submit + array('hax_element_edit_form_submit'),
   );
 
-  if (!empty($grid_plate->label)) {
+  if (!empty($hax_element->label)) {
     $form['actions']['delete'] = array(
       '#type' => 'submit',
-      '#value' => t('Delete Grid Plate'),
-      '#suffix' => l(t('Cancel'), 'admin/content/grid_plate'),
-      '#submit' => $submit + array('grid_plate_form_submit_delete'),
+      '#value' => t('Delete Hax Element'),
+      '#suffix' => l(t('Cancel'), 'admin/content/hax_element'),
+      '#submit' => $submit + array('hax_element_form_submit_delete'),
       '#weight' => 45,
     );
   }
 
   // We append the validate handler to validate in case a form callback_wrapper
   // is used to add validate handlers earlier.
-  $form['#validate'] = array('grid_plate_edit_form_validate');
+  $form['#validate'] = array('hax_element_edit_form_validate');
 
   return $form;
 }
 
 /**
- * Form API validate callback for the Grid Plate form.
+ * Form API validate callback for the Hax Element form.
  */
-function grid_plate_edit_form_validate(&$form, &$form_state) {
-  $grid_plate = $form_state['grid_plate'];
+function hax_element_edit_form_validate(&$form, &$form_state) {
+  $hax_element = $form_state['hax_element'];
 
   // Notify field widgets to validate their data.
-  field_attach_form_validate('grid_plate', $grid_plate, $form, $form_state);
+  field_attach_form_validate('hax_element', $hax_element, $form, $form_state);
 }
 
 /**
- * Form API submit callback for the Grid Plate form.
+ * Form API submit callback for the Hax Element form.
  */
-function grid_plate_edit_form_submit(&$form, &$form_state) {
-  // Save the entity and go back to the list of Grid Plate.
-  $grid_plate = entity_ui_controller('grid_plate')->entityFormSubmitBuildEntity($form, $form_state);
+function hax_element_edit_form_submit(&$form, &$form_state) {
+  // Save the entity and go back to the list of Hax Element.
+  $hax_element = entity_ui_controller('hax_element')->entityFormSubmitBuildEntity($form, $form_state);
 
   // Add in created and changed times.
-  $is_new_entity = $grid_plate->is_new = isset($grid_plate->is_new) ? $grid_plate->is_new : 0;
+  $is_new_entity = $hax_element->is_new = isset($hax_element->is_new) ? $hax_element->is_new : 0;
   if ($is_new_entity) {
-    $grid_plate->created = time();
+    $hax_element->created = time();
   }
 
-  $grid_plate->changed = time();
+  $hax_element->changed = time();
 
-  $grid_plate->save();
+  $hax_element->save();
 
   // Send feedback message to the user.
-  $message = t("Grid Plate :label updated.", array(':label' => $grid_plate->label));
+  $message = t("Hax Element :label updated.", array(':label' => $hax_element->label));
 
   if ($is_new_entity) {
-    $message = t("Grid Plate :label created.", array(':label' => $grid_plate->label));
+    $message = t("Hax Element :label created.", array(':label' => $hax_element->label));
   }
 
   drupal_set_message($message);
 
-  $form_state['redirect'] = 'admin/content/grid_plate';
+  $form_state['redirect'] = 'admin/content/hax_element';
 }
 
 /**
  * Form API submit callback for the delete button.
  */
-function grid_plate_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/content/grid_plate/manage/' . $form_state['grid_plate']->mjid . '/delete';
+function hax_element_form_submit_delete(&$form, &$form_state) {
+  $form_state['redirect'] = 'admin/content/hax_element/manage/' . $form_state['hax_element']->mjid . '/delete';
 }
 
 /**
- * Sets the breadcrumb for administrative Grid Plate pages.
+ * Sets the breadcrumb for administrative Hax Element pages.
  */
-function grid_plate_set_breadcrumb() {
+function hax_element_set_breadcrumb() {
   $breadcrumb = array(
     l(t('Home'), '<front>'),
     l(t('Administration'), 'admin'),
     l(t('Content'), 'admin/content'),
-    l(t('Grid Plate'), 'admin/content/grid_plate'),
+    l(t('Hax Element'), 'admin/content/hax_element'),
   );
 
   drupal_set_breadcrumb($breadcrumb);

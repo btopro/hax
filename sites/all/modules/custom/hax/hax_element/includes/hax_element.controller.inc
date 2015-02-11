@@ -2,15 +2,15 @@
 
 /**
  * @file
- * Element controller class.
+ * Hax Element controller class.
  */
 
 /**
- * The Controller for Element entities.
+ * The Controller for Hax Element entities.
  */
-class ElementController extends EntityAPIController {
+class HaxElementController extends EntityAPIController {
   /**
-   * Create a Element.
+   * Create a Hax Element.
    *
    * @param array $values
    *   An array containing the possible values.
@@ -21,7 +21,7 @@ class ElementController extends EntityAPIController {
   public function create(array $values = array()) {
     // Add values that are specific to our entity.
     $values += array(
-      'element_id' => '',
+      'hax_element_id' => '',
       'is_new' => TRUE,
       'label' => '',
     );

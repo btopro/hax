@@ -1,0 +1,314 @@
+<?php
+
+/**
+ * @file
+ * Implementation of Entity Hax Gridplate.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function hax_gridplate_entity_info() {
+  $return['hax_gridplate'] = array(
+    'label' => t('Hax Gridplate'),
+    // The entity class and controller class extend the default entity classes.
+    'entity class' => 'HaxGridplate',
+    'controller class' => 'HaxGridplateController',
+    'base table' => 'hax_gridplate',
+    'fieldable' => TRUE,
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'hax_gridplate_id',
+      'bundle' => 'type',
+    ),
+    // Bundles are defined by the types below.
+    'bundles' => array(),
+    'bundle keys' => array('bundle' => 'type'),
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
+    'access callback' => 'hax_gridplate_access',
+    'module' => 'hax_gridplate',
+    // The information below is used by the Controller;
+    // which extends the EntityDefaultUIController.
+    'admin ui' => array(
+      'path' => 'admin/content/hax_gridplate',
+      'file' => 'includes/hax_gridplate.admin.inc',
+      'controller class' => 'HaxGridplateUIController',
+      'menu wildcard' => '%hax_gridplate',
+    ),
+  );
+  // The entity that holds information about the entity types.
+  $return['hax_gridplate_type'] = array(
+    'label' => t('Hax Gridplate Type'),
+    'entity class' => 'HaxGridplateType',
+    'controller class' => 'HaxGridplateTypeController',
+    'base table' => 'hax_gridplate_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'hax_gridplate',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'access callback' => 'hax_gridplate_type_access',
+    'module' => 'hax_gridplate',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/hax_gridplate_types',
+      'file' => 'includes/hax_gridplate_type.admin.inc',
+      'controller class' => 'HaxGridplateTypeUIController',
+    ),
+  );
+
+  return $return;
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function hax_gridplate_entity_info_alter(&$entity_info) {
+  foreach (hax_gridplate_get_types() as $type => $info) {
+    $entity_info['hax_gridplate']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/structure/hax_gridplate_types/manage/%hax_gridplate_type',
+        'real path' => 'admin/structure/hax_gridplate_types/manage/' . $type,
+        'bundle argument' => 4,
+        'access arguments' => array('administer Hax Gridplate types'),
+      ),
+    );
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function hax_gridplate_permission() {
+  // We set up permisssions to manage entity types, manage all entities and the
+  // permissions for each individual entity.
+  $permissions = array(
+    'administer Hax Gridplate types' => array(
+      'title' => t('Administer Hax Gridplate types'),
+      'description' => t('Create and delete fields for Hax Gridplate types, and set their permissions.'),
+    ),
+    'administer Hax Gridplate' => array(
+      'title' => t('Administer Hax Gridplate'),
+      'description' => t('Edit and delete all Hax Gridplate'),
+    ),
+  );
+
+  // Generate permissions.
+  foreach (hax_gridplate_get_types() as $type) {
+    $type_name = check_plain($type->type);
+    $permissions += array(
+      "edit any $type_name Hax Gridplate" => array(
+        'title' => t('%type_name: Edit any Hax Gridplate', array('%type_name' => $type->label)),
+      ),
+      "view any $type_name Hax Gridplate" => array(
+        'title' => t('%type_name: View any Hax Gridplate', array('%type_name' => $type->label)),
+      ),
+    );
+  }
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function hax_gridplate_theme() {
+  return array(
+    'hax_gridplate' => array(
+      'render element' => 'elements',
+      'template' => 'hax_gridplate',
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function hax_gridplate_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Add action link 'admin/structure/hax_gridplate/add'
+  // on 'admin/structure/hax_gridplate'.
+  if ($root_path == 'admin/content/hax_gridplate') {
+    $item = menu_get_item('admin/content/hax_gridplate/add');
+    if ($item['access']) {
+      $data['actions']['output'][] = array(
+        '#theme' => 'menu_local_action',
+        '#link' => $item,
+      );
+    }
+  }
+}
+
+/**
+ * Determines whether the given user has access to a Hax Gridplate.
+ *
+ * @param string $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ *
+ * @param object $entity
+ *   Optionally a Hax Gridplate or a Hax Gridplate type to check access for.
+ *   If nothing is given, access for all Hax Gridplate is determined.
+ *
+ * @param object $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ *
+ * @return bool
+ *   Whether access is allowed or not.
+ */
+function hax_gridplate_access($op, $entity = NULL, $account = NULL) {
+  if (user_access('administer Hax Gridplate', $account)) {
+    return TRUE;
+  }
+
+  if (isset($entity) && $type_name = $entity->type) {
+    $op = ($op == 'view') ? 'view' : 'edit';
+    if (user_access("$op any $type_name Hax Gridplate", $account)) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Access callback for the entity API.
+ */
+function hax_gridplate_type_access($op, $type = NULL, $account = NULL) {
+  return user_access('administer Hax Gridplate types', $account);
+}
+
+/**
+ * Gets an array of all Hax Gridplate types, keyed by the type name.
+ *
+ * @param string $type_name
+ *   If set, the type with the given name is returned.
+ *
+ * @return array
+ *   Depending whether $type isset, an array of Hax Gridplate types
+ *   or a single one.
+ */
+function hax_gridplate_get_types($type_name = NULL) {
+  // entity_load will get the Entity controller for our Hax Gridplate entity
+  // and call the load function of that object.
+  // We are loading entities by name here.
+  $types = entity_load_multiple_by_name('hax_gridplate_type', isset($type_name) ? array($type_name) : FALSE);
+
+  return isset($type_name) ? reset($types) : $types;
+}
+
+/**
+ * Menu argument loader; Load a Hax Gridplate type by string.
+ *
+ * @param string $type
+ *   The machine-readable name of a Hax Gridplate type to load.
+ *
+ * @return mixed
+ *   A Hax Gridplate type array or FALSE if $type does not exist.
+ */
+function hax_gridplate_type_load($type) {
+  return hax_gridplate_get_types($type);
+}
+
+/**
+ * Fetch a Hax Gridplate object.
+ *
+ * @param int $hax_gridplate_id
+ *   Integer specifying the hax_gridplate id.
+ *
+ * @return object
+ *   A fully-loaded object or FALSE if it cannot be loaded.
+ *
+ * @see entity_load_single()
+ */
+function hax_gridplate_load($hax_gridplate_id) {
+  return entity_load_single('hax_gridplate', $hax_gridplate_id);
+}
+
+/**
+ * Load multiple Hax Gridplate based on certain conditions.
+ *
+ * @param array $hax_gridplate_ids
+ *   An array of Hax Gridplate IDs.
+ *
+ * @param array $conditions
+ *   An array of conditions to match against the hax_gridplate table.
+ *
+ * @param bool $reset
+ *   A boolean indicating that the internal cache should be reset.
+ *
+ * @return array
+ *   An array of objects, indexed by hax_gridplate_id.
+ *
+ * @see entity_load()
+ * @see hax_gridplate_load()
+ */
+function hax_gridplate_load_multiple($hax_gridplate_ids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('hax_gridplate', $hax_gridplate_ids, $conditions, $reset);
+}
+
+/**
+ * Deletes a Hax Gridplate.
+ */
+function hax_gridplate_delete(HaxGridplate $hax_gridplate) {
+  $hax_gridplate->delete();
+}
+
+/**
+ * Delete multiple Hax Gridplate.
+ *
+ * @param array $hax_gridplate_ids
+ *   An array of Hax Gridplate IDs.
+ */
+function hax_gridplate_delete_multiple(array $hax_gridplate_ids) {
+  return entity_delete_multiple('hax_gridplate', $hax_gridplate_ids);
+}
+
+/**
+ * Create a Hax Gridplate object.
+ */
+function hax_gridplate_create($values = array()) {
+  return entity_create('hax_gridplate', $values);
+}
+
+/**
+ * Saves a Hax Gridplate to the database.
+ *
+ * @param string $hax_gridplate
+ *   The Hax Gridplate object.
+ */
+function hax_gridplate_save($hax_gridplate) {
+  return entity_save('hax_gridplate', $hax_gridplate);
+}
+
+/**
+ * Saves a Hax Gridplate type to the db.
+ */
+function hax_gridplate_type_save($type) {
+  return entity_save('hax_gridplate_type', $type);
+}
+
+/**
+ * Deletes a Hax Gridplate type from the db.
+ */
+function hax_gridplate_type_delete(HaxGridplateType $type) {
+  $type->delete();
+}
+
+/**
+ * Menu title callback for showing individual entities.
+ */
+function hax_gridplate_page_title(HaxGridplate $hax_gridplate) {
+  return $hax_gridplate->label;
+}
+
+/**
+ * Sets up content to show an individual Hax Gridplate.
+ */
+function hax_gridplate_page_view($hax_gridplate, $view_mode = 'full') {
+  return entity_view('hax_gridplate_type', array($hax_gridplate), $view_mode);
+}

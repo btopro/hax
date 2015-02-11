@@ -1,0 +1,11 @@
+name = Hax Element
+description = Implementation of entity Hax Element
+core = 7.x
+
+dependencies[] = entity
+
+files[] = includes/hax_element.class.inc
+files[] = includes/hax_element.controller.inc
+files[] = includes/hax_element.type.controller.inc
+files[] = includes/hax_element.admin.inc
+files[] = includes/hax_element_type.admin.inc
